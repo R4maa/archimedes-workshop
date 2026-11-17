@@ -1,4 +1,4 @@
-/* Spectra · geometric optics, independent of the renderer. OpenAI GPT-6 / Codex. */
+/* Spectra · geometric optics, independent of the renderer. OpenAI Sol 6.1 / Codex. */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.SpectraOptics = factory();

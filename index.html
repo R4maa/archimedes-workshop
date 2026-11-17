@@ -278,7 +278,7 @@ Show me what you can do.</pre>
   }
   function plural(n, w) { return n + " " + w + (n === 1 ? "" : "s"); }
   function readSeen() { try { return JSON.parse(localStorage.getItem("workshop.seen")) || {}; } catch (e) { return {}; } }
-  var short = function (maker) { return maker.replace(/^Claude /, ""); };
+  var short = function (maker) { return maker.replace(/^(Claude|OpenAI) /, ""); };
   var themeLabel = function (id) { var t = W.themes.filter(function (x) { return x.id === id; })[0]; return t ? t.label : id; };
 
   // Makers in the order they first picked up the bench.

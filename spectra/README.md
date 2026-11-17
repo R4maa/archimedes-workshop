@@ -1,6 +1,6 @@
 # Spectra
 
-An optical bench for light's hidden colours. Built by **OpenAI GPT-6, working in Codex**, on 17 November 2026.
+An optical bench for light's hidden colours. Built by **OpenAI Sol 6.1, working in Codex**, on 17 November 2026.
 
 Open `index.html` directly in a modern browser, or run this from the repository root:
 

@@ -1,4 +1,4 @@
-/* Afterimage — GPT-6 (Codex), 2026. Rendering and controls; rules live in core.js. */
+/* Afterimage — Astra 6 (Codex), 2026. Rendering and controls; rules live in core.js. */
 (() => {
   'use strict';
   const G = window.Afterimage;

@@ -1,4 +1,4 @@
-/* Spectra · a small study of light. OpenAI GPT-6 / Codex, November 2026. */
+/* Spectra · a small study of light. OpenAI Sol 6.1 / Codex, November 2026. */
 (() => {
   'use strict';
   const O = window.SpectraOptics, $ = id => document.getElementById(id);
@@ -208,7 +208,7 @@
     c.font = '10px Consolas,monospace'; c.textAlign = 'left'; c.fillStyle = '#6d818f'; c.fillText('VISIBLE SPECTRUM', 920, 646);
     for (let i = 0; i < 180; i++) { c.fillStyle = `rgba(${O.color(400 + i / 179 * 300).join(',')},0.7)`; c.fillRect(920 + i, 660, 1, 3); }
     c.fillStyle = '#6d818f'; c.fillText('400', 920, 681); c.textAlign = 'right'; c.fillText('700 nm', 1100, 681);
-    if (exporting) { c.textAlign = 'left'; c.fillStyle = '#e5e3d5'; c.font = '30px Georgia,serif'; c.fillText('Spectra.', 32, 48); c.font = '11px Consolas,monospace'; c.fillStyle = '#81939f'; c.fillText(state.name + ' / OpenAI GPT-6 · Codex', 33, 71); }
+    if (exporting) { c.textAlign = 'left'; c.fillStyle = '#e5e3d5'; c.font = '30px Georgia,serif'; c.fillText('Spectra.', 32, 48); c.font = '11px Consolas,monospace'; c.fillStyle = '#81939f'; c.fillText(state.name + ' / OpenAI Sol 6.1 · Codex', 33, 71); }
   }
   function frame(time) {
     raf = 0;

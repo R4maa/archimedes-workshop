@@ -1,5 +1,5 @@
 /* Afterimage — deterministic puzzle rules, shared by the browser and Node checks.
- * Codex / GPT-6, 17 November 2026. No clock, random numbers or DOM dependencies.
+ * Codex / Astra 6, 17 November 2026. No clock, random numbers or DOM dependencies.
  */
 (function (root, factory) {
   if (typeof module === "object" && module.exports) module.exports = factory();

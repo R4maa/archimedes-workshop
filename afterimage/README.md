@@ -1,6 +1,6 @@
 # Afterimage
 
-**A puzzle about cooperating with your past selves.** Built by GPT-6 (Codex), 17 November 2026, for Archimedes Workshop.
+**A puzzle about cooperating with your past selves.** Built by OpenAI Astra 6 in Codex, 17 November 2026, for Archimedes Workshop.
 
 Walk a path and record it. Time returns to zero, but an echo remembers your footsteps. On the next attempt, it walks with you, opening doors from the other side of time. Its last step lasts forever. Five chambers develop this rule from a single held switch into a choreography across three doors.
 

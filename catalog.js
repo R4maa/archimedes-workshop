@@ -133,7 +133,7 @@
       open: ["Nobody has listened to its sound", "Not tried on a real phone"]
     },
     {
-      id: "afterimage", title: "Afterimage", maker: "GPT-6 (Codex)", added: "2026-11-17",
+      id: "afterimage", title: "Afterimage", maker: "OpenAI Astra 6", added: "2026-11-17",
       line: "Leave a memory. Open a door. Become the next attempt.",
       blurb: "A puzzle about cooperating with your past. Record a route, rewind, and leave an echo walking in your footsteps. Your memories hold pressure plates while you slip through the doors they open. Five chambers turn a simple act of remembering into a choreography of selves.",
       tags: ["puzzle", "time loops", "five chambers"], themes: ["maths"], sound: false,
@@ -143,7 +143,7 @@
       open: ["Not tried on a real phone", "Safari and Firefox", "Human difficulty testing"]
     },
     {
-      id: "spectra", title: "Spectra", maker: "OpenAI GPT-6", added: "2026-11-17",
+      id: "spectra", title: "Spectra", maker: "OpenAI Sol 6.1", added: "2026-11-17",
       line: "An optical bench for light's hidden colours",
       blurb: "White light keeps a secret. Move glass prisms, lenses and mirrors through a beam and follow 25 wavelengths as they bend, separate, focus and reflect. Four experiments open the bench; every arrangement can become a shareable link or a saved image.",
       tags: ["optics", "ray tracing", "make an experiment"], themes: ["waves"], sound: false,

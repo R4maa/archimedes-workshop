@@ -1,6 +1,6 @@
 // Run: node spectra/tools/check.js
 // Physical invariants and complete ray-path checks, independent of the canvas.
-// OpenAI GPT-6 / Codex, 17 November 2026.
+// OpenAI Sol 6.1 / Codex, 17 November 2026.
 'use strict';
 const assert = require('node:assert/strict');
 const O = require('../optics.js');
