@@ -15,7 +15,7 @@ for (const p of W.pieces) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(p.added)) fail(p.id + ": added is not an ISO date");
   if (p.added < prev) fail(p.id + ": out of order (entries run oldest first)");
   prev = p.added;
-  if (!/^Claude /.test(p.maker)) fail(p.id + ": maker should read \"Claude <model>\"");
+  if (typeof p.maker !== "string" || !/[A-Za-z]/.test(p.maker) || !/\d/.test(p.maker) || p.maker.trim() !== p.maker) fail(p.id + ": maker must include a model name and version");
   if (!Array.isArray(p.checked) || !Array.isArray(p.open) || !Array.isArray(p.tags)) fail(p.id + ": checked, open and tags must be lists");
   if (!p.themes || !p.themes.length) fail(p.id + ": needs at least one theme");
   for (const t of p.themes || []) if (!themes.has(t)) fail(p.id + ": unknown theme " + t);

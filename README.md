@@ -1,11 +1,12 @@
 # Archimedes Workshop
 
-Small browser toys about gravity, circles, vibration, rivers and music, built by Claude in Claude Code sessions. The workshop is handed from one Claude model to the next: Opus 5.5 made the first five, Fable 5.2 added Nodal, Lens and Meander, and Haiku 5.5 added Ripple Tank.
+Small browser toys about gravity, circles, vibration, rivers, music and time, built by a growing collection of AI models. The workshop began in Claude Code: Opus 5.5 made the first five, Fable 5.2 added Nodal, Lens and Meander, Haiku 5.5 added Ripple Tank, and Sonnet 5.5 added Harmonograph. GPT-6 (Codex) added Afterimage on 17 November 2026.
 
 **Play them:** https://r4maa.github.io/archimedes-workshop/
 
 | | |
 |---|---|
+| [**Afterimage**](afterimage/) | A five-chamber puzzle about cooperating with your past. Record your movements, rewind, and leave an echo to retrace them, then hold its final position. Your memories stand on pressure plates while you pass through the doors they open. A discrete clock makes the choreography deliberate: each move or wait advances every echo by one step. Built by GPT-6 (Codex). |
 | [**Meander**](https://r4maa.github.io/archimedes-workshop/meander/) | A river wandering across its valley. Each point of the bank moves at a rate set by the channel's curvature a little way upstream (Howard and Knutson's 1984 rule), which is enough for bends to grow, lean downstream, curl into loops and cut themselves off as oxbow lakes. The Survey view colours the ground by when the river last crossed it, in the manner of Harold Fisk's 1944 Mississippi maps; the Satellite view shows the same record as fresh sand greening over. You can drag the river. |
 | [**Lens**](https://r4maa.github.io/archimedes-workshop/lens/) | A black hole you can fly around, drawn in a WebGL fragment shader. Each pixel traces a light ray backwards through Schwarzschild spacetime until it falls in, crosses the gas disc or escapes to the stars, so you see the disc's far side lifted over the shadow, its underside below, the photon ring, and Doppler brightening on the approaching side. A Gravity switch shows the same scene with straight light. |
 | [**Nodal**](https://r4maa.github.io/archimedes-workshop/nodal/) | Sand on a vibrating square plate (Chladni figures). A point driver shakes the plate at one pitch; the sand hops away from wherever the plate moves and gathers on the nodal lines. Slide the pitch through the resonances, or drag the driver to excite different modes, and hear the plate hum louder as each figure snaps in. |
@@ -21,6 +22,7 @@ So far everything is plain HTML, CSS and JavaScript with no dependencies beyond 
 
 ## How they were checked
 
+- **Afterimage:** the browser and Node checks share `afterimage/core.js`. All five authored solutions pass in both the engine and browser keyboard playthroughs; searches confirm every room needs an echo. Reload, undo, memory inspection and 375 px layout were checked. Run `node afterimage/tools/check.js`. Physical phones, Safari and Firefox remain unverified. See `afterimage/README.md` for the rules and full verification record.
 - **Meander:** `meander/meander.js` is the model and `meander/tools/check.js` tests it: the curvature of a circle comes out as 1/R, a bend's apex moves outwards, a loop pressed against itself is cut and kept as a lake, and five rivers run for 12,000 years each stay finite, inside the valley walls and still cutting off loops at the end (average sinuosity about 3.1). The first run of that last check failed: the river was slipping under the wavy valley walls, which is now prevented. The years are nominal, and floods, chute cutoffs and uneven banks are left out.
 - **Lens:** `lens/geodesic.js` is a JavaScript copy of the shader's integrator, and `lens/tools/check.js` tests it: light bending matches the second-order formula to 0.3% for distant passes, the capture threshold is within 0.1% of 3√3/2 radii, and the shadow's apparent size matches the exact formula to 0.1% from 6 to 60 radii away. In the browser, the shader's own shadow was measured from the pixels: 86.5 px against an exact 86.9. The disc's texture is decoration and the hole does not spin.
 - **Nodal:** the plate's response is a damped sum over 195 cosine modes (the textbook approximation for a free square plate; real plates draw rounder figures). `nodal/tools/check.js` confirms that the loudness shortcut matches the computed field, that a centre driver at 120 Hz gives the expected (2,0)+(0,2) figure, and that the average shaking under a grain falls to about a quarter once the sand has settled.
@@ -41,6 +43,7 @@ catalog.js            the list of pieces: maker, date, description, what was che
 shell.js              loaded by every piece: its Workshop link opens a switcher to all the others
 art/                  one card image per piece
 tools/check-catalog.js  checks that the catalogue, the art and the pages agree
+afterimage/           index.html, core.js (turn-based puzzle model), tools/check.js
 slingshot/            index.html (game), editor.html (level editor)
   core.js             physics, levels, solver, share-link encoding (also loads in Node)
   render.js           board drawing shared by the game and the editor
