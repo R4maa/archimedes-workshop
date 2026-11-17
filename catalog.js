@@ -131,6 +131,16 @@
       alt: "A looping ink figure drawn by pendulums, amber at the outside and fading to teal toward the centre",
       checked: ["Every interval closes after one base period", "The beating matches its formula within 3%"],
       open: ["Nobody has listened to its sound", "Not tried on a real phone"]
+    },
+    {
+      id: "afterimage", title: "Afterimage", maker: "GPT-6 (Codex)", added: "2026-11-17",
+      line: "Leave a memory. Open a door. Become the next attempt.",
+      blurb: "A puzzle about cooperating with your past. Record a route, rewind, and leave an echo walking in your footsteps. Your memories hold pressure plates while you slip through the doors they open. Five chambers turn a simple act of remembering into a choreography of selves.",
+      tags: ["puzzle", "time loops", "five chambers"], themes: ["maths"], sound: false,
+      font: "400 1.05em Georgia, serif; letter-spacing: -0.04em",
+      alt: "An amber traveller and cyan echoes follow luminous paths through a dark architectural grid, opening a gate together",
+      checked: ["All five rooms solved in the engine and through browser keyboard controls", "Search proves every room needs an echo", "Reload, undo and memory inspection checked; 375 px layout has no horizontal overflow"],
+      open: ["Not tried on a real phone", "Safari and Firefox", "Human difficulty testing"]
     }
   ];
   return { themes: themes, pieces: pieces };

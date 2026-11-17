@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <radialGradient id="pool"><stop stop-color="#153d43"/><stop offset="1" stop-color="#090f17"/></radialGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" fill="none" stroke="#33505a" stroke-opacity=".2"/></pattern>
+    <filter id="glow"><feGaussianBlur stdDeviation="5"/></filter>
+  </defs>
+  <rect width="640" height="360" fill="#090f17"/>
+  <ellipse cx="335" cy="200" rx="320" ry="220" fill="url(#pool)"/>
+  <rect width="640" height="360" fill="url(#grid)"/>
+  <g transform="translate(96 54)">
+    <path d="M0 0H448V224H0ZM32 32V192H416V32Z" fill="#1c2d36" fill-rule="evenodd" stroke="#3a515a"/>
+    <path d="M160 32H192V96H160ZM160 128H192V192H160ZM288 32H320V64H288ZM288 96H320V192H288Z" fill="#1c2d36" stroke="#3a515a"/>
+    <path d="M64 160V64H128M64 160H240V80H368" stroke="#6ee8d6" stroke-width="12" fill="none" opacity=".15" filter="url(#glow)"/>
+    <path d="M64 160V64H128" stroke="#6ee8d6" stroke-width="2" stroke-dasharray="3 7" fill="none"/>
+    <path d="M64 160H128V112H240V80H368" stroke="#6ee8d6" stroke-width="2" stroke-dasharray="3 7" fill="none" opacity=".55"/>
+    <path d="M64 160H128V112H240V144H368" stroke="#edc88b" stroke-width="2" fill="none"/>
+    <g stroke="#6ee8d6" fill="none">
+      <circle cx="128" cy="64" r="14"/><circle cx="128" cy="64" r="9"/>
+      <circle cx="368" cy="80" r="14"/><circle cx="368" cy="80" r="9"/>
+      <path d="M164 96V128M188 96V128M292 64V96M316 64V96" stroke-width="3"/>
+    </g>
+    <circle cx="128" cy="64" r="6" fill="#6ee8d6"/>
+    <circle cx="368" cy="80" r="6" fill="#6ee8d6" opacity=".6"/>
+    <circle cx="368" cy="144" r="20" fill="#edc88b" opacity=".2" filter="url(#glow)"/>
+    <path d="M368 133L379 144L368 155L357 144Z" fill="#edc88b"/>
+    <rect x="385" y="137" width="15" height="15" rx="2" fill="none" stroke="#edc88b" opacity=".6"/>
+  </g>
+  <g fill="#a8b9bd" font-family="monospace" font-size="10" letter-spacing="3">
+    <text x="32" y="30">AFTERIMAGE</text>
+    <text x="32" y="332">THE PAST IS A PLACE YOU CAN LEAVE SOMEONE.</text>
+  </g>
+  <path d="M32 293H608" stroke="#31444e"/>
+  <g fill="#6ee8d6"><circle cx="563" cy="26" r="3"/><circle cx="579" cy="26" r="3" opacity=".6"/><circle cx="595" cy="26" r="3" opacity=".25"/></g>
+</svg>
