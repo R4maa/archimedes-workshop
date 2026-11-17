@@ -243,6 +243,49 @@ tries.
   slows the river, as on the real Mississippi); a share link for a seed; a "survey sheet" export as PNG;
   sound of water that follows the nearest bend.
 
+## Nakaya (nakaya/, added 2026-11-17 by Opus 5.5)
+
+- Snow crystals. `snow.js` is the model (loads in the page, the worker and Node), `worker.js` grows crystals off
+  the main thread, `index.html` is the page with an inline WebGL2 renderer, `tools/check.js` the checks
+  (`node nakaya/tools/check.js`, about 5 s, all should say ok), `tools/render.js` grows a crystal in Node and
+  writes a PNG (`node nakaya/tools/render.js out.png -15 0.8`, or `anchor fern`, or `sky "-15,0.3;-6,0.5"`),
+  which is how the parameters were tuned by eye. Script stamps `snow.js?v=1` (page, and `importScripts` in the
+  worker) and `worker.js?v=1`; bump them together.
+- Model: Gravner and Griffeath 2008 (diffusion, freezing, attachment with thresholds β, α, θ, melting μ, γ; noise
+  σ is 0 in every anchor). Lattice radius 200, folded by the hexagon's 12 symmetries: only one site per orbit is
+  stored and `lattice(R).nb` gives folded neighbours, so all six arms are identical by construction. The check
+  compares it with an unfolded implementation; keep that check if you touch `step()`.
+- Climate: `climate(T, s)` interpolates five anchor parameter sets (prism, plate, sector, stellar, fern) by
+  "drive" m = s × BRANCH_T(T), and blends toward prism by COLUMN_T(T). Piecewise linear, + − × ÷ only, so links
+  are exact across browsers (the same rule as Slingshot's daily). Changing an anchor or a table changes every
+  saved link's crystal, and the codes carry no version yet: give them a new prefix letter if you do.
+- Changing ρ mid-fall rescales the vapour field (letting it diffuse in from the rim would take ~R² steps).
+- Skies: "live" (dragging; keyframes every K = 40 steps), "time" (replay), "layers" (2–4 waypoints met as the
+  crystal widens: waypoint i at (i + 0.5)/n of the landing size, or by time when growth stalls). Lands at 0.86 R
+  or 48,000 steps. Codes: `t` + seed + run-length keyframes, `w` + seed + waypoints; `#c=` regrows a crystal,
+  `#l=` opens it as a letter.
+- Pace: the worker picks steps per second from the measured progress per step, so a slow plate and a racing fern
+  both fall in about 42 s at 1×.
+- Letter score (`compare()`): half birth-time-weighted overlap, half a 24-ring profile (how full and how thick
+  each ring is), stretched so unrelated crystals land near 0. It compares crystals, not skies, and the model is
+  sensitive: a reply within a degree of the letter can grow visibly different arms and score about 60%. I tried
+  per-third feedback (centre, middle, tips) and dropped it: a column layer hardly widens, so ring thirds don't
+  line up with sky layers.
+- Rendering: the shader reads the folded data through an R32I index texture and interpolates barycentrically
+  on the triangular lattice of site centres; thickness gives normals, which refract the background; the History
+  view tints by birth time with isochrone lines, in the same palette as the trail on the diagram.
+- Checked in the Browser pane (Chromium): presets, steering by drag, landing, collection thumbnails, History,
+  a letter end to end (place points, reply, score, reveal), `#c=` links regrowing, 375×812 (crystal and diagram
+  both on screen, letters side by side), no console errors, the landing card and the switcher. **Not verified:**
+  a real phone (the shader does about 18 texel fetches per pixel at up to 2× pixel ratio), Safari and Firefox, a
+  screen reader, whether the letters are fun or too hard for a person, and Save image / Copy link (downloads
+  and the clipboard weren't exercised).
+- Cache stamps: `catalog.js?v=1` was not bumped for Nakaya (nor for Afterimage and Spectra, added the same day);
+  bumping means editing every page, and another session had those staged at the time.
+- Ideas: a daily-letter streak; the 3-D Gravner–Griffeath model (real columns and capped columns); slight
+  differences between arms, as in real crystals; a sound for each growth front; printing a crystal with its sky
+  as a "letter" card.
+
 ## Next up
 
 1. Grand Tour was rebuilt and blind-tested 2026-10-28 (see Log); ask the user only if they mention it.
@@ -345,3 +388,6 @@ tries.
   stay even. Other sessions were committing here at the same time (Ripple Tank, Harmonograph); the
   untracked `today/` and `harmonograph/` folders are not mine and were left alone.
 - 2026-11-10: Fable 5.2, given freedom to redesign the whole workshop: new landing page drawn from `catalog.js`, a switcher on every piece (`shell.js`), card art moved to `art/`, bench notes on every card, Ripple Tank fits the screen and opens alive. Each piece keeps its own look. See "The frame" near the top for how to add a piece now and what was and was not verified.
+- 2026-11-17: Opus 5.5 added Nakaya: snow crystals steered through Nakaya’s diagram, and letters to read back.
+  Model checks all pass; tested in the pane at desktop size and 375×812. Another session (Afterimage, Spectra)
+  was working in this checkout at the same time; only Nakaya’s files and hunks were committed.

@@ -151,6 +151,16 @@
       alt: "A white beam crossing a glass prism and opening into a vivid spectrum on a dark optical bench",
       checked: ["Snell's law, Fresnel reflectance, total internal reflection, prism dispersion and lens convergence tested in Node", "80 seeded mixed arrangements remain finite and tracing stays bounded"],
       open: ["Real touch hardware, Safari and Firefox", "Display colours are illustrative; lenses use faceted circular arcs"]
+    },
+    {
+      id: "nakaya", title: "Nakaya", maker: "Claude Opus 5.5", added: "2026-11-17",
+      line: "Steer a snow crystal; read the weather written in one",
+      blurb: "Grow a snow crystal by steering it through Nakaya's diagram of the sky. Dry air grows flat plates, wet air near −15 °C grows stars and ferns, and everything you do is written outward into the ice, so each crystal keeps the weather it fell through. Then turn it round: read a letter, a crystal from a hidden sky, and work out the weather that wrote it.",
+      tags: ["snow crystals", "lattice model", "puzzle", "WebGL2"], themes: ["nature", "maths"], sound: false,
+      font: "700 1.08em 'Shippori Mincho', Georgia, serif; letter-spacing: 0.04em",
+      alt: "A six-armed snow crystal with side branches and hexagonal plates at its tips, amber at the centre fading through rose and violet to cyan",
+      checked: ["The folded six-fold lattice matches a plain full-lattice run to 1e-15, and mass is conserved to 3e-15", "Plates, stars, ferns and slow columns appear where Nakaya's diagram puts them", "Links regrow the same crystal bit for bit; steering, letters and a 375 px layout checked in Chromium"],
+      open: ["Not tried on a real phone", "Safari and Firefox", "Whether the letters are fun and fair for a person"]
     }
   ];
   return { themes: themes, pieces: pieces };

@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nakaya</title>
+<meta name="description" content="Grow a snow crystal by steering it through the sky: temperature and humidity decide whether it grows plates, stars or ferns, and every crystal keeps the record of the weather it fell through.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+/* Layout: the crystal's stage on the left (on top on phones), the sky panel on the right (below on phones). */
+:root {
+  --bg: #050a14;
+  --panel: #0b1322;
+  --panel2: #111c30;
+  --ink: #e4ecf7;
+  --muted: #8b9cb5;
+  --faint: #56667f;
+  --line: rgba(160, 190, 230, 0.16);
+  --ice: #a8e6ff;
+  --warm: #ffd27a;
+  --serif: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif;
+  --sans: "Zen Kaku Gothic New", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); }
+body { font-family: var(--sans); font-size: 14px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+.app { display: grid; grid-template-columns: minmax(0, 1fr) 384px; height: 100vh; height: 100dvh; }
+.stage { position: relative; min-height: 0; overflow: hidden; background: var(--bg); }
+#gl { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.panel { background: var(--panel); border-left: 1px solid var(--line); overflow-y: auto; padding: 18px 18px 28px; display: flex; flex-direction: column; gap: 14px; }
+.top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+h1 { font-family: var(--serif); font-weight: 700; font-size: 34px; line-height: 1; margin: 0; letter-spacing: 0.04em; }
+.quote { margin: 6px 0 0; font-family: var(--serif); font-size: 13.5px; color: var(--muted); }
+.quote cite { font-style: normal; color: var(--faint); white-space: nowrap; }
+.home { color: var(--muted); text-decoration: none; font-size: 13px; border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; white-space: nowrap; }
+.home:hover { color: var(--ink); border-color: rgba(160, 190, 230, 0.4); }
+.tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--panel2); border-radius: 10px; padding: 3px; gap: 3px; }
+.tabs button { font: inherit; font-weight: 500; color: var(--muted); background: transparent; border: 0; border-radius: 8px; padding: 8px 6px; cursor: pointer; }
+.tabs button[aria-selected="true"] { background: #1d2c47; color: var(--ink); }
+.diagram-wrap { position: relative; }
+#diagram { width: 100%; aspect-ratio: 1.42; display: block; border-radius: 10px; touch-action: none; cursor: crosshair; outline: none; }
+#diagram:focus-visible { box-shadow: 0 0 0 2px var(--ice); }
+.readout { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.readout b { color: var(--ink); font-weight: 500; }
+.bar { height: 4px; background: var(--panel2); border-radius: 2px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #ffd27a, #ff8fa3, #9d8cff, #6fd3ff); border-radius: 2px; }
+.hint { font-size: 13px; color: var(--muted); margin: 0; }
+.hint b { color: var(--ink); font-weight: 500; }
+.row { display: flex; flex-wrap: wrap; gap: 6px; }
+.btn { font: inherit; font-size: 13px; color: var(--ink); background: var(--panel2); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer; min-height: 34px; white-space: nowrap; }
+.btn:hover { border-color: rgba(160, 190, 230, 0.4); }
+.btn.primary { background: #cfeeff; color: #08111f; border-color: transparent; font-weight: 700; }
+.btn.primary:hover { background: #e6f7ff; }
+.btn[aria-pressed="true"] { background: #1d2c47; border-color: rgba(168, 230, 255, 0.5); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.label { font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); margin: 0 0 6px; }
+.skies .btn { font-size: 12.5px; padding: 5px 10px; min-height: 30px; }
+.tray { display: grid; grid-template-columns: repeat(auto-fill, minmax(62px, 1fr)); gap: 6px; }
+.tray button { padding: 0; border: 1px solid var(--line); border-radius: 8px; background: #03070f; cursor: pointer; aspect-ratio: 1; overflow: hidden; }
+.tray button:hover { border-color: rgba(168, 230, 255, 0.5); }
+.tray img { width: 100%; height: 100%; display: block; }
+.empty { font-size: 12.5px; color: var(--faint); margin: 0; }
+details { border-top: 1px solid var(--line); padding-top: 12px; }
+summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+details p { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
+.caption { position: absolute; left: 18px; bottom: 16px; right: 18px; pointer-events: none; text-shadow: 0 1px 8px #000; }
+.caption .name { font-family: var(--serif); font-size: 22px; font-weight: 500; }
+.caption .meta { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.vlabel { position: absolute; top: 14px; font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); pointer-events: none; text-shadow: 0 1px 6px #000; }
+.score { background: var(--panel2); border-radius: 10px; padding: 10px 12px; }
+.score .big { font-family: var(--serif); font-size: 28px; line-height: 1.1; }
+.score p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+.toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #dff4ff; color: #08111f; padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 5; }
+.toast.on { opacity: 1; }
+.mtop { display: none; }
+.nogl { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: var(--muted); }
+@media (max-width: 820px) {
+  .app { display: block; height: auto; }
+  .stage { height: 50vh; height: 50svh; min-height: 280px; }
+  .panel { border-left: 0; border-top: 1px solid var(--line); padding: 12px 16px 32px; overflow: visible; gap: 12px; }
+  /* the title moves onto the stage so the diagram sits right under the crystal */
+  .panel > .top { display: none; }
+  .mtop { display: flex; position: absolute; top: 0; left: 0; right: 0; justify-content: space-between; align-items: center; padding: max(10px, env(safe-area-inset-top)) 14px 0; pointer-events: none; }
+  .mtop > * { pointer-events: auto; }
+  .mtitle { font-family: var(--serif); font-weight: 700; font-size: 22px; letter-spacing: 0.04em; text-shadow: 0 1px 8px #000; }
+  .mtop .home { background: rgba(5, 10, 20, 0.6); }
+  .vlabel { top: 44px; }
+  .caption { left: 14px; bottom: 12px; }
+  .caption .name { font-size: 19px; }
+}
+</style>
+<script src="../catalog.js?v=1" defer></script>
+<script src="../shell.js?v=1" defer></script>
+</head>
+<body>
+<div class="app">
+  <div class="stage" id="stage">
+    <canvas id="gl" aria-label="The snow crystal"></canvas>
+    <div class="vlabel" id="vl0" hidden>The letter</div>
+    <div class="vlabel" id="vl1" hidden>Your reply</div>
+    <div class="mtop"><span class="mtitle">Nakaya</span><a class="home" href="../">← Workshop</a></div>
+    <div class="caption" id="caption"><div class="name" id="cname">&nbsp;</div><div class="meta" id="cmeta">&nbsp;</div></div>
+  </div>
+  <div class="panel">
+    <div class="top">
+      <div>
+        <h1>Nakaya</h1>
+        <p class="quote">“Snow is a letter sent from the sky.” <cite>— Ukichiro Nakaya</cite></p>
+      </div>
+      <a class="home" href="../">← Workshop</a>
+    </div>
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tabFall" aria-selected="true">Let one fall</button>
+      <button role="tab" id="tabLetter" aria-selected="false">Read a letter</button>
+    </div>
+
+    <div class="diagram-wrap">
+      <canvas id="diagram" tabindex="0" role="application" aria-label="Nakaya's diagram: temperature across, supersaturation up. Drag to set the weather; arrow keys move in small steps."></canvas>
+    </div>
+    <div class="readout"><span><b id="rT">−15.0 °C</b> · supersaturation <b id="rS">0.55</b></span><span id="rHabit">stellar dendrite</span></div>
+
+    <!-- Let one fall -->
+    <section id="fallUI">
+      <div class="bar" aria-hidden="true"><i id="prog"></i></div>
+      <p class="hint" id="fallHint" style="margin-top:10px"><b>Drag on the diagram</b> to change the weather the crystal is falling through. Its centre grows first; whatever you do now is written into its outer parts.</p>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="again">Let another fall</button>
+        <button class="btn" id="landNow">Land now</button>
+        <button class="btn" id="speedBtn" title="How fast the crystal falls">Speed 1×</button>
+        <button class="btn" id="histBtn" aria-pressed="false" title="Tint the ice by when it froze">History</button>
+      </div>
+      <div style="margin-top:14px" class="skies">
+        <p class="label">Or pick a sky</p>
+        <div class="row" id="skies"></div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn" id="shareBtn">Copy link</button>
+        <button class="btn" id="sendBtn" title="A link that asks a friend to work out the weather">Send as a letter</button>
+        <button class="btn" id="pngBtn">Save image</button>
+      </div>
+      <div style="margin-top:16px">
+        <p class="label">Your crystals <span id="trayCount"></span></p>
+        <div class="tray" id="tray"></div>
+        <p class="empty" id="trayEmpty">Each crystal that lands is kept here (in this browser). Tap one to watch it regrow.</p>
+      </div>
+    </section>
+
+    <!-- Read a letter -->
+    <section id="letterUI" hidden>
+      <p class="hint" id="letterHint">A crystal has fallen through three layers of sky. <b>Work out the weather:</b> tap the diagram for the layer that grew its centre, then its middle, then its tips. Drag a point to move it.</p>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="reply" disabled>Send my reply</button>
+        <button class="btn" id="clearPts">Clear points</button>
+        <button class="btn" id="histBtn2" aria-pressed="false">History</button>
+      </div>
+      <div class="score" id="score" hidden style="margin-top:12px"><div class="big" id="scoreBig"></div><p id="scoreText"></p></div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn" id="dailyBtn">Today’s letter</button>
+        <button class="btn" id="newLetter">Another letter</button>
+      </div>
+      <details style="margin-top:14px">
+        <summary>How to read a snow crystal</summary>
+        <p>The middle froze first and the tips froze last, so read it from the inside out. Dry air grows flat, faceted plates. Wet air near −15 °C grows branches, and the wetter it is the more fern-like they get. Between −4 and −10 °C the crystal grows into a column, which seen from above barely widens: a small, sharp hexagon. Ribs and bright edges mark where the weather changed.</p>
+      </details>
+    </section>
+
+    <details>
+      <summary>What is happening here</summary>
+      <p>In 1936 Ukichiro Nakaya grew the first artificial snow crystals on a rabbit hair in a cold room in Sapporo. Changing the temperature and the humidity, he found that each combination grows its own shape. His chart of them, redrawn here, means a crystal can be read backwards: its shape tells you the weather it fell through.</p>
+      <p>The crystal grows by Gravner and Griffeath’s lattice model (2008). Each site of a hexagonal grid holds vapour, a thin liquid-like layer and ice. Vapour diffuses, the edge freezes some of it, and an edge site joins the crystal once it has gathered enough mass. It needs less when it touches more crystal, which keeps facets flat, while tips that reach wetter air outgrow everything else and branch. The diagram’s colours are the model’s own response at each point.</p>
+      <p>All six arms grow through the same sky, so they come out identical. Real snowflakes are close to that, but not exact. The page draws the ice by refracting a dark background through its thickness, as in dark-field photographs of real snow.</p>
+      <p>Made by Claude Opus 5.5, November 2026.</p>
+    </details>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="snow.js?v=1"></script>
+<script>
+"use strict";
+(function () {
+const R = 200;
+const L = SNOW.lattice(R);
+const $ = (id) => document.getElementById(id);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove("on"), 1800); }
+const fmtT = (T) => (T === 0 ? "0.0" : "−" + Math.abs(T).toFixed(1)) + " °C";
+
+// Time palette: core (first to freeze) to tips (last). The trail on the diagram uses the same colours.
+const PAL = [[255, 210, 122], [255, 143, 163], [157, 140, 255], [111, 211, 255]];
+function pal(t) {
+  t = Math.max(0, Math.min(1, t)) * (PAL.length - 1);
+  const i = Math.min(PAL.length - 2, Math.floor(t)), f = t - i, a = PAL[i], b = PAL[i + 1];
+  return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, a[2] + (b[2] - a[2]) * f];
+}
+
+// ---------------------------------------------------------------- WebGL renderer
+const canvas = $("gl");
+const gl = canvas.getContext("webgl2", { antialias: false, premultipliedAlpha: false });
+let renderer = null;
+if (!gl) {
+  const d = document.createElement("div"); d.className = "nogl";
+  d.textContent = "This piece needs WebGL2, which this browser doesn't offer.";
+  $("stage").appendChild(d);
+} else renderer = makeRenderer();
+
+function makeRenderer() {
+  const VS = `#version 300 es
+  in vec2 p; void main(){ gl_Position = vec4(p, 0., 1.); }`;
+  const FS = `#version 300 es
+  precision highp float; precision highp int; precision highp isampler2D;
+  uniform isampler2D uIndex; uniform sampler2D uData;
+  uniform int uR; uniform int uTW;
+  uniform vec4 uRect;      // viewport in device pixels
+  uniform vec2 uCenter;    // crystal centre, device pixels
+  uniform float uScale;    // lattice units per device pixel
+  uniform float uT, uCmax, uTime, uHist, uFall, uHas, uLanded, uDpr;
+  out vec4 o;
+  const vec3 P0 = vec3(1.0, 0.824, 0.478), P1 = vec3(1.0, 0.561, 0.639), P2 = vec3(0.616, 0.549, 1.0), P3 = vec3(0.435, 0.827, 1.0);
+  vec3 palette(float t){ t = clamp(t, 0., 1.) * 3.; return t < 1. ? mix(P0, P1, t) : t < 2. ? mix(P1, P2, t - 1.) : mix(P2, P3, t - 2.); }
+  float hash(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
+  vec4 cell(int q, int r){
+    int s = -q - r;
+    if (max(max(abs(q), abs(r)), abs(s)) > uR) return vec4(0., 0., uT, 0.);
+    int id = texelFetch(uIndex, ivec2(r + uR, q + uR), 0).r;
+    return texelFetch(uData, ivec2(id % uTW, id / uTW), 0);
+  }
+  // Barycentric interpolation on the triangular lattice of site centres.
+  vec4 samp(vec2 p){
+    float r = p.y * 1.1547005, q = p.x - r * 0.5;
+    float q0 = floor(q), r0 = floor(r), fq = q - q0, fr = r - r0;
+    int iq = int(q0), ir = int(r0);
+    if (fq + fr < 1.) return (1. - fq - fr) * cell(iq, ir) + fq * cell(iq + 1, ir) + fr * cell(iq, ir + 1);
+    return (fq + fr - 1.) * cell(iq + 1, ir + 1) + (1. - fr) * cell(iq + 1, ir) + (1. - fq) * cell(iq, ir + 1);
+  }
+  float hexd(vec2 p){ p = abs(p); return max(p.x * 0.866 + p.y * 0.5, p.y); }
+  vec3 background(vec2 fc){
+    vec2 c = (fc - uRect.xy - uRect.zw * 0.5) / uRect.w;
+    float r = length(c);
+    vec3 col = mix(vec3(0.045, 0.085, 0.16), vec3(0.008, 0.016, 0.038), smoothstep(0.0, 0.9, r));
+    col += vec3(0.11, 0.065, 0.025) * smoothstep(0.75, 0.0, length(c - vec2(-0.55, 0.42)));
+    col += vec3(0.02, 0.05, 0.09) * smoothstep(0.7, 0.0, length(c - vec2(0.5, -0.45)));
+    // out-of-focus snow drifting upward past the falling crystal (hexagonal bokeh, two depths)
+    for (int k = 0; k < 2; k++) {
+      float G = (k == 0 ? 150. : 80.) * uDpr;
+      vec2 q = fc - uRect.xy; q.y -= uFall * (k == 0 ? 0.35 : 0.8) * uDpr; q.x += float(k) * 37.;
+      vec2 id = floor(q / G), f = q - id * G;
+      float h = hash(id + float(k) * 7.1);
+      if (h > 0.55) {
+        vec2 ctr = (vec2(hash(id + 3.3), hash(id + 9.1)) * 0.5 + 0.25) * G;
+        float rad = (0.12 + 0.12 * hash(id + 5.7)) * G;
+        float d = hexd(f - ctr) / rad;
+        float disc = smoothstep(1.0, 0.82, d) * (0.6 + 0.4 * smoothstep(0.6, 1.0, d));
+        col += vec3(0.55, 0.7, 0.9) * disc * (k == 0 ? 0.028 : 0.045) * (h - 0.55) * 2.2;
+      }
+    }
+    return col;
+  }
+  void main(){
+    vec2 fc = gl_FragCoord.xy;
+    vec3 col = background(fc);
+    if (uHas > 0.5) {
+      vec2 d = (fc - uCenter) * uScale;
+      vec2 p = vec2(d.y, -d.x);              // turn the lattice so an arm points up
+      float e = max(0.6, uScale * 0.9);
+      vec4 v = samp(p), vx = samp(p + vec2(e, 0.)), vy = samp(p + vec2(0., e));
+      float a = v.x;
+      float w = fwidth(a) * 0.9 + 0.03;
+      float alpha = smoothstep(0.5 - w, 0.5 + w, a);
+      // the quasi-liquid layer on the growing edge glows faintly
+      col += vec3(0.45, 0.72, 1.0) * clamp(v.w / 1.6, 0., 1.) * 0.32 * (1. - alpha);
+      if (alpha > 0.001) {
+        vec2 g = vec2(vx.y - v.y, vy.y - v.y) / e;  // lattice-frame gradient of thickness
+        vec2 gs = vec2(-g.y, g.x);                   // the same, turned back to the screen
+        vec3 n = normalize(vec3(-gs * 0.85, 1.0));
+        float thick = clamp(v.y / max(uCmax, 0.01), 0., 1.);
+        vec3 refr = background(fc + n.xy * 46. * uDpr);
+        vec3 ice = refr * 0.72 + vec3(0.58, 0.76, 0.96) * (0.05 + 0.24 * thick);
+        float rim = 1. - n.z;
+        // slopes facing the warm lamp pick up amber, the others the cool fill light (as in dark-field photographs)
+        vec2 sl = n.xy / max(length(n.xy), 1e-4);
+        vec3 tint = mix(vec3(0.55, 0.78, 1.0), vec3(1.0, 0.82, 0.55), smoothstep(-0.6, 0.6, dot(sl, normalize(vec2(-0.7, 0.7)))));
+        ice += mix(vec3(0.85, 0.94, 1.0), tint, 0.55) * pow(rim, 0.6) * 1.15;
+        vec3 H = normalize(vec3(-0.45, 0.55, 0.7) + vec3(0., 0., 1.));
+        ice += vec3(1.0, 0.97, 0.9) * pow(max(dot(n, H), 0.), 48.) * 0.55;
+        float tb = clamp(v.z / max(uT, 1.), 0., 1.);
+        vec3 hc = palette(tb);
+        ice = mix(ice, ice * 0.5 + hc * 0.42 + hc * pow(rim, 0.65) * 0.4, uHist);
+        // isochrones: lines through sites that froze at the same moment
+        float bands = 12., fb = abs(fract(tb * bands + 0.5) - 0.5), lw = fwidth(tb * bands) * 1.1 + 0.001;
+        ice += mix(vec3(0.7, 0.85, 1.0), hc, uHist) * (1. - smoothstep(0., lw, fb)) * (0.035 + 0.3 * uHist) * alpha;
+        // a few glints on the ridges once it has landed
+        vec2 cellId = floor(p * 0.5);
+        float gl = step(0.9965, hash(cellId + floor(uTime * 0.7 + hash(cellId) * 3.))) * pow(rim, 0.5) * uLanded;
+        ice += vec3(1.) * gl * 0.9;
+        col = mix(col, ice, alpha);
+      }
+    }
+    vec2 c = (fc - uRect.xy) / uRect.zw - 0.5;
+    col *= 1. - 0.35 * dot(c, c);
+    col += (hash(fc + fract(uTime) * 17.) - 0.5) * 0.012;
+    o = vec4(pow(clamp(col, 0., 1.), vec3(0.95)), 1.);
+  }`;
+  function sh(type, src) {
+    const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+  gl.useProgram(prog);
+  const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, "p"); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  const U = {}; ["uIndex", "uData", "uR", "uTW", "uRect", "uCenter", "uScale", "uT", "uCmax", "uTime", "uHist", "uFall", "uHas", "uLanded", "uDpr"].forEach((k) => U[k] = gl.getUniformLocation(prog, k));
+  // index texture: full lattice -> stored site
+  const idxTex = gl.createTexture();
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, idxTex);
+  gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+  const full = new Int32Array(L.full.length); for (let i = 0; i < full.length; i++) full[i] = Math.max(0, L.full[i]);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.R32I, L.N, L.N, 0, gl.RED_INTEGER, gl.INT, full);
+  [gl.TEXTURE_MIN_FILTER, gl.TEXTURE_MAG_FILTER].forEach((p) => gl.texParameteri(gl.TEXTURE_2D, p, gl.NEAREST));
+  [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T].forEach((p) => gl.texParameteri(gl.TEXTURE_2D, p, gl.CLAMP_TO_EDGE));
+  const TW = 256, TH = Math.ceil(L.n / TW);
+  const dataTex = [0, 1].map(() => {
+    const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, TW, TH, 0, gl.RGBA, gl.FLOAT, new Float32Array(TW * TH * 4));
+    [gl.TEXTURE_MIN_FILTER, gl.TEXTURE_MAG_FILTER].forEach((p) => gl.texParameteri(gl.TEXTURE_2D, p, gl.NEAREST));
+    [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T].forEach((p) => gl.texParameteri(gl.TEXTURE_2D, p, gl.CLAMP_TO_EDGE));
+    return t;
+  });
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, idxTex); // creating the data textures rebound unit 0
+  const pad = new Float32Array(TW * TH * 4);
+  gl.uniform1i(U.uIndex, 0); gl.uniform1i(U.uData, 1); gl.uniform1i(U.uR, R); gl.uniform1i(U.uTW, TW);
+  return {
+    upload(slot, data) {
+      pad.set(data);
+      gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, dataTex[slot]);
+      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, TW, TH, gl.RGBA, gl.FLOAT, pad);
+    },
+    // rect in device pixels with the origin bottom-left (GL convention)
+    draw(slot, rect, v, time, dpr) {
+      gl.viewport(rect[0], rect[1], rect[2], rect[3]);
+      gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, dataTex[slot]);
+      gl.uniform4f(U.uRect, rect[0], rect[1], rect[2], rect[3]);
+      gl.uniform2f(U.uCenter, rect[0] + rect[2] / 2, rect[1] + rect[3] / 2);
+      // fit the crystal (extent in lattice units, measured along an arm) into the viewport
+      const fit = Math.min(rect[2], rect[3]) * 0.43;
+      gl.uniform1f(U.uScale, v.zoom / fit);
+      gl.uniform1f(U.uT, v.t); gl.uniform1f(U.uCmax, v.cmax); gl.uniform1f(U.uTime, time);
+      gl.uniform1f(U.uHist, v.hist); gl.uniform1f(U.uFall, v.fall); gl.uniform1f(U.uHas, v.has ? 1 : 0);
+      gl.uniform1f(U.uLanded, v.landed ? 1 : 0); gl.uniform1f(U.uDpr, dpr);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
+  };
+}
+
+// ---------------------------------------------------------------- views (what each slot shows)
+function blankView() { return { has: false, id: -1, t: 0, extent: 0, zoom: 14, cmax: 1, hist: 0, fall: 0, landed: false, name: "", trail: [], progress: 0, now: null, pending: false }; }
+const views = [blankView(), blankView()];
+let histOn = store.get("nakaya.hist", false);
+
+// ---------------------------------------------------------------- worker
+const worker = new Worker("worker.js?v=1");
+let nextId = 1;
+const handlers = { landed: [], score: [] };
+worker.onmessage = (e) => {
+  const m = e.data, v = views[m.slot];
+  if (m.type === "frame") {
+    v.pending = false;
+    if (m.id !== v.id) return;
+    // thickness only where there is ice; birth time "now" where there isn't
+    const d = m.data; let cmax = 0;
+    for (let k = 0; k < m.n; k++) {
+      if (d[k * 4] > 0) { if (d[k * 4 + 1] > cmax) cmax = d[k * 4 + 1]; }
+      else { d[k * 4 + 1] = 0; d[k * 4 + 2] = m.t; }
+    }
+    if (renderer) renderer.upload(m.slot, d);
+    v.has = true; v.t = m.t; v.extent = m.extent; v.cmax = cmax || 1; v.landed = m.landed;
+    v.trail = m.trail; v.progress = m.progress; v.now = m.now; v.name = m.name;
+    onFrame(m.slot);
+  } else if (m.type === "idle") v.pending = false;
+  else if (m.type === "landed") { if (m.id === v.id) onLanded(m.slot, m); }
+  else if (m.type === "score") onScore(m);
+};
+function start(slot, opts, pace, extra) {
+  const v = views[slot] = Object.assign(blankView(), { id: nextId++, hist: views[slot].hist, fall: views[slot].fall }, extra || {});
+  worker.postMessage({ cmd: "start", slot, id: v.id, opts, pace, clearReply: slot === 0 });
+  if (slot === 0) { views[1] = blankView(); }
+  return v;
+}
+
+// ---------------------------------------------------------------- diagram
+const dg = $("diagram"), dctx = dg.getContext("2d");
+const Tmin = -30;
+let marker = store.get("nakaya.marker", [-15, 0.55]);
+let mode = "fall";
+let points = [];          // letter mode: the reader's waypoints
+let reveal = null;        // letter mode, after replying: the letter's trail
+let dgBg = null;
+function diagramBackground() {
+  // the model's own habit at every point: amber = columns, blue = plates, through teal and pale ice to white ferns
+  const W = 150, H = 100, c = document.createElement("canvas"); c.width = W; c.height = H;
+  const x = c.getContext("2d"), img = x.createImageData(W, H);
+  const stops = [[0, [34, 58, 92]], [0.3, [28, 84, 98]], [0.62, [74, 120, 158]], [1, [150, 176, 214]]];
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+    const T = (i + 0.5) / W * Tmin, s = 1 - (j + 0.5) / H, p = SNOW.climate(T, s);
+    let k = 1; while (k < stops.length - 1 && p.m > stops[k][0]) k++;
+    const a = stops[k - 1], b = stops[k], f = Math.max(0, Math.min(1, (p.m - a[0]) / (b[0] - a[0])));
+    let r = a[1][0] + (b[1][0] - a[1][0]) * f, g = a[1][1] + (b[1][1] - a[1][1]) * f, bl = a[1][2] + (b[1][2] - a[1][2]) * f;
+    r += (112 - r) * p.col; g += (86 - g) * p.col; bl += (52 - bl) * p.col;
+    const o = (j * W + i) * 4; img.data[o] = r; img.data[o + 1] = g; img.data[o + 2] = bl; img.data[o + 3] = 255;
+  }
+  x.putImageData(img, 0, 0);
+  return c;
+}
+function dgSize() {
+  const dpr = Math.min(2, window.devicePixelRatio || 1), r = dg.getBoundingClientRect();
+  const w = Math.round(r.width * dpr), h = Math.round(r.height * dpr);
+  if (dg.width !== w || dg.height !== h) { dg.width = w; dg.height = h; }
+  return { w, h, dpr };
+}
+const PADL = 0.075, PADB = 0.13, PADT = 0.03, PADR = 0.02;
+function toPx(T, s, w, h) { return [w * (PADL + (1 - PADL - PADR) * (T / Tmin)), h * (PADT + (1 - PADT - PADB) * (1 - s))]; }
+function fromPx(x, y, w, h) {
+  const T = Math.max(Tmin, Math.min(0, (x / w - PADL) / (1 - PADL - PADR) * Tmin));
+  const s = Math.max(0, Math.min(1, 1 - (y / h - PADT) / (1 - PADT - PADB)));
+  return [T, s];
+}
+function drawDiagram() {
+  const { w, h, dpr } = dgSize();
+  const x = dctx;
+  x.setTransform(1, 0, 0, 1, 0, 0);
+  x.fillStyle = "#08101d"; x.fillRect(0, 0, w, h);
+  if (!dgBg) dgBg = diagramBackground();
+  const [x0, y0] = toPx(0, 1, w, h), [x1, y1] = toPx(Tmin, 0, w, h);
+  x.imageSmoothingEnabled = true; x.globalAlpha = 0.9; x.drawImage(dgBg, x0, y0, x1 - x0, y1 - y0); x.globalAlpha = 1;
+  // labels for the habits
+  x.textAlign = "center"; x.textBaseline = "middle";
+  const lab = (t, T, s, size, alpha) => { const [px, py] = toPx(T, s, w, h); x.font = `500 ${size * dpr}px "Zen Kaku Gothic New", sans-serif`; x.fillStyle = `rgba(228,236,247,${alpha})`; x.fillText(t, px, py); };
+  lab("plates", -1.9, 0.1, 10.5, 0.75);
+  lab("columns", -7.1, 0.5, 11, 0.8); lab("seen end-on", -7.1, 0.42, 9, 0.6);
+  lab("plates", -16, 0.06, 11, 0.75); lab("sectored", -16, 0.3, 11, 0.8);
+  lab("stars", -14.8, 0.6, 11, 0.85); lab("ferns", -15, 0.88, 11, 0.9);
+  lab("thick plates", -26.5, 0.3, 10, 0.6);
+  // water saturation (where the air is saturated for liquid droplets)
+  x.setLineDash([4 * dpr, 4 * dpr]); x.strokeStyle = "rgba(228,236,247,0.45)"; x.lineWidth = 1 * dpr; x.beginPath();
+  for (let T = 0; T >= Tmin; T -= 0.5) { const u = -T / 13, s = 0.66 * u * Math.exp(1 - u); const [px, py] = toPx(T, s, w, h); T === 0 ? x.moveTo(px, py) : x.lineTo(px, py); }
+  x.stroke(); x.setLineDash([]);
+  { const [px, py] = toPx(-24, 0.66 * (24 / 13) * Math.exp(1 - 24 / 13) + 0.06, w, h); x.font = `400 ${9 * dpr}px "Zen Kaku Gothic New", sans-serif`; x.fillStyle = "rgba(228,236,247,0.55)"; x.fillText("water saturation", px, py); }
+  // axes
+  x.fillStyle = "rgba(139,156,181,0.9)"; x.font = `400 ${9.5 * dpr}px "Zen Kaku Gothic New", sans-serif`; x.textBaseline = "top";
+  for (let T = 0; T >= Tmin; T -= 5) { const [px] = toPx(T, 0, w, h); x.fillText(T === 0 ? "0" : "−" + -T, px, y1 + 4 * dpr); }
+  x.textAlign = "right"; x.fillText("°C", w - 2 * dpr, y1 + 4 * dpr + 11 * dpr);
+  x.save(); x.translate(x0 - 8 * dpr, (y0 + y1) / 2); x.rotate(-Math.PI / 2); x.textAlign = "center"; x.textBaseline = "bottom";
+  x.fillText("supersaturation →", 0, 0); x.restore();
+  // the sky so far (or the letter's sky, once revealed), coloured core to tips
+  const drawTrail = (tr, width, alpha) => {
+    if (!tr || tr.length < 6) return;
+    x.lineCap = "round"; x.lineJoin = "round"; x.lineWidth = width * dpr;
+    for (let i = 3; i < tr.length; i += 3) {
+      const [ax, ay] = toPx(tr[i - 3], tr[i - 2], w, h), [bx, by] = toPx(tr[i], tr[i + 1], w, h);
+      const c = pal(tr[i + 2]);
+      x.strokeStyle = `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${alpha})`;
+      x.beginPath(); x.moveTo(ax, ay); x.lineTo(bx + 0.01, by); x.stroke();
+    }
+  };
+  const ring = (T, s, r, fill, stroke, label) => {
+    const [px, py] = toPx(T, s, w, h);
+    x.beginPath(); x.arc(px, py, r * dpr, 0, Math.PI * 2);
+    x.fillStyle = fill; x.fill(); x.lineWidth = 2 * dpr; x.strokeStyle = stroke; x.stroke();
+    if (label) { x.fillStyle = "#08111f"; x.font = `700 ${10 * dpr}px "Zen Kaku Gothic New", sans-serif`; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText(label, px, py + 0.5 * dpr); }
+  };
+  if (mode === "fall") {
+    const v = views[0];
+    drawTrail(v.trail, 3, 0.95);
+    const m = marker;
+    const [px, py] = toPx(m[0], m[1], w, h);
+    x.strokeStyle = "rgba(255,255,255,0.35)"; x.lineWidth = 1 * dpr;
+    x.beginPath(); x.moveTo(px, y0); x.lineTo(px, y1); x.moveTo(x0, py); x.lineTo(x1, py); x.stroke();
+    ring(m[0], m[1], 7, "rgba(255,255,255,0.15)", "#ffffff");
+  } else {
+    if (reveal) {
+      drawTrail(reveal, 6, 0.35);
+      drawTrail(reveal, 2, 0.95);
+      if (views[1].trail) drawTrail(views[1].trail, 1.5, 0.5);
+    }
+    const cols = [pal(0), pal(0.5), pal(1)];
+    if (points.length > 1) {
+      x.strokeStyle = "rgba(255,255,255,0.5)"; x.lineWidth = 1.5 * dpr; x.setLineDash([3 * dpr, 3 * dpr]); x.beginPath();
+      points.forEach((p, i) => { const [px, py] = toPx(p[0], p[1], w, h); i ? x.lineTo(px, py) : x.moveTo(px, py); });
+      x.stroke(); x.setLineDash([]);
+    }
+    points.forEach((p, i) => { const c = cols[i]; ring(p[0], p[1], 9, `rgb(${c.map((z) => z | 0)})`, "#fff", String(i + 1)); });
+  }
+}
+
+// dragging on the diagram
+let dragging = -1;
+function evPos(e) { const r = dg.getBoundingClientRect(), dpr = dg.width / r.width; return [(e.clientX - r.left) * dpr, (e.clientY - r.top) * dpr]; }
+dg.addEventListener("pointerdown", (e) => {
+  e.preventDefault(); dg.focus({ preventScroll: true });
+  const [px, py] = evPos(e), [T, s] = fromPx(px, py, dg.width, dg.height);
+  if (mode === "fall") { dragging = 0; dg.setPointerCapture(e.pointerId); setWeather(T, s); }
+  else {
+    if (views[1].has && !views[1].landed) return;
+    // grab a nearby point, or place the next one
+    let best = -1, bd = 1e9;
+    points.forEach((p, i) => { const [qx, qy] = toPx(p[0], p[1], dg.width, dg.height); const d = Math.hypot(qx - px, qy - py); if (d < bd) { bd = d; best = i; } });
+    if (best >= 0 && bd < 22 * (dg.width / dg.getBoundingClientRect().width)) dragging = best;
+    else if (points.length < 3) { points.push([T, s]); dragging = points.length - 1; }
+    else return;
+    points[dragging] = [T, s]; dg.setPointerCapture(e.pointerId); letterPointsChanged();
+  }
+});
+dg.addEventListener("pointermove", (e) => {
+  if (dragging < 0) return;
+  const [px, py] = evPos(e), [T, s] = fromPx(px, py, dg.width, dg.height);
+  if (mode === "fall") setWeather(T, s); else { points[dragging] = [T, s]; letterPointsChanged(); }
+});
+const endDrag = () => { if (dragging >= 0 && mode === "fall") store.set("nakaya.marker", marker); dragging = -1; };
+dg.addEventListener("pointerup", endDrag); dg.addEventListener("pointercancel", endDrag);
+dg.addEventListener("keydown", (e) => {
+  const d = { ArrowLeft: [0.5, 0], ArrowRight: [-0.5, 0], ArrowUp: [0, 0.025], ArrowDown: [0, -0.025] }[e.key];
+  if (!d) return;
+  e.preventDefault();
+  if (mode === "fall") { setWeather(Math.max(Tmin, Math.min(0, marker[0] + d[0])), Math.max(0, Math.min(1, marker[1] + d[1]))); store.set("nakaya.marker", marker); }
+  else if (points.length) { const p = points[points.length - 1]; p[0] = Math.max(Tmin, Math.min(0, p[0] + d[0])); p[1] = Math.max(0, Math.min(1, p[1] + d[1])); letterPointsChanged(); }
+});
+
+function readout(T, s) {
+  const k = SNOW.keyframe(T, s);
+  $("rT").textContent = fmtT(k[0]); $("rS").textContent = k[1].toFixed(2);
+  $("rHabit").textContent = SNOW.habitOf(k[0], k[1]);
+}
+
+// ---------------------------------------------------------------- let one fall
+let replaying = false; // regrowing a crystal from the collection or a link: don't keep it twice
+let presetName = "";
+function setWeather(T, s) {
+  marker = [T, s];
+  readout(T, s);
+  const v = views[0];
+  if (!v.has || v.landed) startLive();
+  else worker.postMessage({ cmd: "target", slot: 0, T, s });
+  presetName = "";
+  updateSkies();
+}
+function startLive() {
+  replaying = false; presetName = "";
+  start(0, { kind: "live", seed: (Math.random() * 4096) | 0, target: marker.slice() }, "fall");
+  fallUIState();
+}
+function startPreset(p) {
+  replaying = false; presetName = p.name;
+  start(0, { kind: "layers", seed: (Math.random() * 4096) | 0, waypoints: p.w }, "fall");
+  updateSkies(); fallUIState();
+}
+function startCode(code, pace) {
+  const o = SNOW.parseCode(code);
+  if (!o) return false;
+  replaying = true; presetName = "";
+  start(0, o, pace || "fast");
+  fallUIState();
+  return true;
+}
+const PRESETS = [
+  { name: "Stellar dendrite", w: [[-15, 0.3], [-15, 0.85], [-15, 0.95]] },
+  { name: "Star with plate tips", w: [[-15, 0.85], [-15, 0.85], [-13, 0.1]] },
+  { name: "Fern", w: [[-15, 1]] },
+  { name: "Hexagonal plate", w: [[-2, 0.05]] },
+  { name: "Sectored plate", w: [[-12, 0.35]] },
+  { name: "Column core", w: [[-6, 0.6], [-15, 0.9], [-15, 0.9]] },
+  { name: "Plates, stars, plates", w: [[-15, 0.6], [-6, 0.6], [-15, 0.7]] }
+];
+function randomSky() {
+  const n = 2 + ((Math.random() * 3) | 0), w = [];
+  for (let i = 0; i < n; i++) w.push([-(1 + Math.random() * 23), 0.05 + Math.random() * 0.95]);
+  return { name: "Surprise", w };
+}
+function updateSkies() { $("skies").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.name === presetName))); }
+PRESETS.concat([{ name: "Surprise" }]).forEach((p) => {
+  const b = document.createElement("button"); b.className = "btn"; b.textContent = p.name; b.dataset.name = p.name;
+  b.addEventListener("click", () => startPreset(p.w ? p : randomSky()));
+  $("skies").appendChild(b);
+});
+const speeds = [1, 2, 4, 0.5];
+let speedIx = 0;
+$("speedBtn").addEventListener("click", () => {
+  speedIx = (speedIx + 1) % speeds.length;
+  const sp = speeds[speedIx];
+  $("speedBtn").textContent = "Speed " + (sp === 0.5 ? "½" : sp) + "×";
+  worker.postMessage({ cmd: "speed", value: sp });
+});
+$("again").addEventListener("click", () => startLive());
+$("landNow").addEventListener("click", () => worker.postMessage({ cmd: "land", slot: 0 }));
+function setHist(on) {
+  histOn = on; store.set("nakaya.hist", on);
+  ["histBtn", "histBtn2"].forEach((id) => $(id).setAttribute("aria-pressed", String(on)));
+}
+$("histBtn").addEventListener("click", () => setHist(!histOn));
+$("histBtn2").addEventListener("click", () => setHist(!histOn));
+setHist(histOn);
+
+let lastCode = "";
+function fallUIState() {
+  const v = views[0], falling = v.id > 0 && !v.landed;
+  $("landNow").disabled = !falling;
+  $("shareBtn").disabled = $("sendBtn").disabled = $("pngBtn").disabled = !(v.landed && lastCode);
+}
+function linkFor(hash) { return location.href.split("#")[0] + "#" + hash; }
+async function share(url, title) {
+  try { await navigator.clipboard.writeText(url); toast("Link copied"); }
+  catch (e) { window.prompt("Copy this link:", url); }
+}
+$("shareBtn").addEventListener("click", () => share(linkFor("c=" + lastCode)));
+$("sendBtn").addEventListener("click", () => share(linkFor("l=" + lastCode)));
+$("pngBtn").addEventListener("click", () => { wantPng = true; });
+
+// the collection
+let tray = store.get("nakaya.tray", []);
+function drawTray() {
+  const el = $("tray"); el.textContent = "";
+  tray.forEach((it) => {
+    const b = document.createElement("button"); b.title = it.name;
+    const img = document.createElement("img"); img.src = it.thumb; img.alt = it.name; b.appendChild(img);
+    b.addEventListener("click", () => { setMode("fall"); startCode(it.code, "fast"); });
+    el.appendChild(b);
+  });
+  $("trayEmpty").hidden = tray.length > 0;
+  $("trayCount").textContent = tray.length ? "(" + tray.length + ")" : "";
+}
+drawTray();
+
+// ---------------------------------------------------------------- read a letter
+let letter = null; // { code, opts, daily }
+function dailySeed() {
+  const d = new Date().toISOString().slice(0, 10); let h = 2166136261;
+  for (const ch of d) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+function makeLetter(seed) {
+  const r = SNOW.rng(seed), w = [];
+  for (let i = 0; i < 3; i++) w.push(SNOW.keyframe(-(1 + r() * 23), 0.05 + r() * 0.95));
+  return { kind: "layers", seed: seed & 4095, waypoints: w };
+}
+function openLetter(opts, daily) {
+  letter = { opts, daily, code: null };
+  points = []; reveal = null;
+  if (/^#c=/.test(location.hash)) history.replaceState(null, "", location.pathname);
+  $("score").hidden = true;
+  start(0, opts, "instant");
+  letterPointsChanged();
+  $("letterHint").hidden = false;
+}
+function letterPointsChanged() {
+  $("reply").disabled = points.length === 0 || (views[1].has && !views[1].landed);
+  if (points.length) readout(points[points.length - 1][0], points[points.length - 1][1]);
+  else { $("rT").textContent = "—"; $("rS").textContent = "—"; $("rHabit").textContent = "tap to place the centre’s weather"; }
+}
+$("reply").addEventListener("click", () => {
+  if (!points.length || !letter) return;
+  start(1, { kind: "layers", seed: letter.opts.seed || 1, waypoints: points.map((p) => SNOW.keyframe(p[0], p[1])) }, "fast");
+  $("score").hidden = true; reveal = null;
+  letterPointsChanged();
+});
+$("clearPts").addEventListener("click", () => { points = []; reveal = null; views[1] = blankView(); $("score").hidden = true; letterPointsChanged(); });
+$("dailyBtn").addEventListener("click", () => openLetter(makeLetter(dailySeed()), true));
+$("newLetter").addEventListener("click", () => openLetter(makeLetter((Math.random() * 2 ** 31) | 0), false));
+function onScore(m) {
+  if (m.id !== views[1].id) return;
+  const pct = Math.round(m.value * 100);
+  reveal = views[0].trail;
+  const key = "nakaya.best." + (letter && letter.code || "");
+  const best = Math.max(pct, store.get(key, 0));
+  if (letter && letter.code) store.set(key, best);
+  $("score").hidden = false;
+  $("scoreBig").textContent = pct + "% match";
+  const verdict = pct >= 90 ? "You read it. The sky that wrote it is drawn on the diagram." : pct >= 65 ?"Close. The letter’s real sky is now drawn on the diagram; move your points and try again." : "The letter’s real sky is now drawn on the diagram. Compare the two crystals from the centre outwards, move your points and try again.";
+  $("scoreText").textContent = verdict + (best > pct ? " Your best for this letter: " + best + "%." : "");
+}
+
+// ---------------------------------------------------------------- modes
+function setMode(m) {
+  if (mode === m) return;
+  mode = m;
+  $("tabFall").setAttribute("aria-selected", String(m === "fall"));
+  $("tabLetter").setAttribute("aria-selected", String(m === "letter"));
+  $("fallUI").hidden = m !== "fall"; $("letterUI").hidden = m !== "letter";
+  $("vl0").hidden = $("vl1").hidden = m !== "letter";
+  if (m === "letter") openLetter(makeLetter(dailySeed()), true);
+  else { readout(marker[0], marker[1]); startPreset(PRESETS[(Math.random() * PRESETS.length) | 0]); }
+}
+$("tabFall").addEventListener("click", () => setMode("fall"));
+$("tabLetter").addEventListener("click", () => setMode("letter"));
+
+// ---------------------------------------------------------------- frames, landing, captions
+function onFrame(slot) {
+  const v = views[slot];
+  if (mode === "fall" && slot === 0) {
+    $("prog").style.width = (v.progress * 100).toFixed(1) + "%";
+    if (v.now && dragging < 0 && (presetName || replaying)) { marker = v.now.slice(); readout(marker[0], marker[1]); }
+    caption();
+  }
+  if (mode === "letter") caption();
+}
+function caption() {
+  if (mode === "letter") {
+    $("cname").textContent = " ";
+    $("cmeta").textContent = views[0].landed ? (views[1].has ? "" : "Read it from the centre outwards") : "A letter is arriving…";
+    return;
+  }
+  const v = views[0];
+  $("cname").textContent = v.name || " ";
+  const r = Math.round(v.extent);
+  $("cmeta").textContent = v.landed ? `Landed · ${r} sites from tip to centre · ${v.t.toLocaleString("en")} steps` : `Falling · ${Math.round(v.progress * 100)}% · ${v.t.toLocaleString("en")} steps`;
+}
+let wantThumb = false, wantPng = false;
+function onLanded(slot, m) {
+  if (mode === "fall" && slot === 0) {
+    lastCode = m.code;
+    if (!replaying) wantThumb = { code: m.code, name: m.name };
+    history.replaceState(null, "", "#c=" + m.code);
+    fallUIState(); caption();
+  }
+  if (mode === "letter" && slot === 0 && letter) { letter.code = m.code; caption(); }
+}
+
+// ---------------------------------------------------------------- render loop
+let lastTime = performance.now();
+function layoutRects(w, h) {
+  if (mode !== "letter") return [[0, 0, w, h]];
+  if (w >= h * 0.75) { const hw = Math.floor(w / 2); return [[0, 0, hw, h], [hw, 0, w - hw, h]]; }
+  const hh = Math.floor(h / 2); return [[0, h - hh, w, hh], [0, 0, w, h - hh]];
+}
+function frame(now) {
+  const rawDt = Math.min(1, (now - lastTime) / 1000), dt = Math.min(0.1, rawDt); lastTime = now;
+  for (let i = 0; i < 2; i++) {
+    const v = views[i];
+    if (v.id > 0 && !v.pending) { v.pending = true; worker.postMessage({ cmd: "frame", slot: i }); }
+    // ease the zoom toward the crystal's size; drift the background while falling
+    const target = Math.max(34, v.extent * 1.06 + 3);
+    v.zoom += (target - v.zoom) * (1 - Math.exp(-rawDt * 2.5)); // real time, so slow frames don't lag
+    if (v.has && !v.landed) v.fall += dt * 30;
+    v.hist += ((histOn ? 1 : 0) - v.hist) * Math.min(1, dt * 6);
+  }
+  if (renderer) {
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const r = canvas.getBoundingClientRect(), w = Math.round(r.width * dpr), h = Math.round(r.height * dpr);
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+    const rects = layoutRects(w, h);
+    rects.forEach((rc, i) => renderer.draw(i, rc, views[i], now / 1000, dpr));
+    if (mode === "letter") {
+      const css = rects.map((rc) => rc.map((z) => z / dpr));
+      const off = matchMedia("(max-width: 820px)").matches ? 50 : 14;
+      $("vl0").style.left = (css[0][0] + 14) + "px"; $("vl0").style.top = (r.height - css[0][1] - css[0][3] + off) + "px";
+      $("vl1").style.left = (css[1][0] + 14) + "px"; $("vl1").style.top = (r.height - css[1][1] - css[1][3] + off) + "px";
+    }
+    if ((wantThumb || wantPng) && views[0].landed) capture(rects[0], dpr);
+  }
+  drawDiagram();
+  requestAnimationFrame(frame);
+}
+function capture(rc, dpr) {
+  // a square around the crystal, read straight after drawing (no preserveDrawingBuffer needed)
+  const side = Math.min(rc[2], rc[3]), sx = rc[0] + (rc[2] - side) / 2, sy = canvas.height - (rc[1] + (rc[3] + side) / 2);
+  if (wantThumb) {
+    const c = document.createElement("canvas"); c.width = c.height = 128;
+    c.getContext("2d").drawImage(canvas, sx, sy, side, side, 0, 0, 128, 128);
+    tray.unshift({ code: wantThumb.code, name: wantThumb.name, thumb: c.toDataURL("image/jpeg", 0.82) });
+    tray = tray.slice(0, 30); store.set("nakaya.tray", tray); drawTray();
+    wantThumb = false;
+  }
+  if (wantPng) {
+    const c = document.createElement("canvas"); c.width = c.height = Math.round(side);
+    c.getContext("2d").drawImage(canvas, sx, sy, side, side, 0, 0, c.width, c.height);
+    c.toBlob((b) => { const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "nakaya-" + (views[0].name || "crystal").toLowerCase().replace(/[^a-z]+/g, "-") + ".png"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); });
+    wantPng = false;
+  }
+}
+
+// ---------------------------------------------------------------- start
+function fromHash() {
+  const h = location.hash.slice(1), m = /^([cl])=(.+)$/.exec(h);
+  if (!m) return false;
+  const o = SNOW.parseCode(m[2]);
+  if (!o) return false;
+  if (m[1] === "c") { readout(marker[0], marker[1]); startCode(m[2], "fast"); return true; }
+  mode = "fall"; setMode("letter"); openLetter(o, false); letter.code = m[2];
+  $("letterHint").innerHTML = "Someone sent you this crystal. <b>Work out the weather it fell through:</b> tap the diagram for the layer that grew its centre, then its middle, then its tips.";
+  return true;
+}
+readout(marker[0], marker[1]);
+if (!fromHash()) startPreset(PRESETS[(Math.random() * 3) | 0]);
+fallUIState();
+requestAnimationFrame(frame);
+window.addEventListener("hashchange", fromHash);
+window.__nakaya = { views, worker, SNOW, get mode() { return mode; }, get points() { return points; }, set points(p) { points = p; letterPointsChanged(); } };
+})();
+</script>
+</body>
+</html>
