@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1015">
+<meta name="description" content="An optical bench for the curious. Sculpt white light with glass, split a spectrum, and follow the paths of individual wavelengths.">
+<title>Spectra · Archimedes Workshop</title>
+<link rel="stylesheet" href="style.css">
+<script src="../catalog.js" defer></script>
+<script src="../shell.js" defer></script>
+<script src="optics.js" defer></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<header class="mast">
+  <a class="workshop" href="../">↖ Workshop</a>
+  <span class="edition">AN OPEN OPTICAL EXPERIMENT <i></i> OPENAI GPT-6 / CODEX</span>
+  <button id="about" class="quiet">Field notes <span>↗</span></button>
+</header>
+<main>
+  <div class="intro">
+    <div><p class="eyebrow">A SMALL STUDY OF LIGHT</p><h1>Spectra<span>.</span></h1></div>
+    <p>White light keeps a secret.<br>Put something in its way.</p>
+    <div class="spectrum" aria-hidden="true"></div>
+  </div>
+  <section class="instrument" aria-label="Interactive optical bench">
+    <div class="bench-top">
+      <div class="bench-label"><span class="live-dot"></span> OPTICAL BENCH <span class="muted">/</span> <span id="scene-name">First light</span></div>
+      <div class="actions"><button id="undo" aria-label="Undo last edit" title="Undo (Ctrl+Z)" disabled>↶ <span>Undo</span></button><button id="reset" aria-label="Reset experiment" title="Restore this experiment">↺ <span>Reset</span></button><button id="save" aria-label="Save image">↓ <span>Image</span></button><button id="share" aria-label="Share arrangement">↗ <span>Share</span></button></div>
+    </div>
+    <div class="workspace">
+      <div class="stage" id="stage">
+        <canvas id="bench" tabindex="0" aria-label="Optical bench. Drag an object to move it, drag its circular handle to rotate. Select objects using the list below; arrow keys move the selection, Shift plus arrows rotates it."></canvas>
+        <div class="stage-label top-left">AIR <span>n = 1.000</span></div>
+        <div class="stage-label bottom-left" id="canvas-hint">DRAG THE GLASS <span>·</span> FOLLOW THE LIGHT</div>
+        <div class="stage-label bottom-right" id="ray-count"></div>
+      </div>
+      <aside class="controls" aria-label="Bench controls">
+        <p class="eyebrow">01 / THE LIGHT</p>
+        <div class="segmented" aria-label="Light spectrum"><button id="white" aria-pressed="true">White light</button><button id="mono" aria-pressed="false">Single colour</button></div>
+        <label class="range-row" id="wave-row" hidden><span>Wavelength <output id="wave-out">540 nm</output></span><input id="wavelength" type="range" min="400" max="700" value="540" step="5"></label>
+        <label class="range-row"><span>Beam width <output id="width-out">22</output></span><input id="width" type="range" min="2" max="120" value="22"></label>
+        <div class="rule"></div>
+        <div class="section-heading"><p class="eyebrow">02 / THE GLASS</p><span id="object-count"></span></div>
+        <div class="add-tools"><button data-add="prism"><span>△</span>Prism</button><button data-add="lens"><span>◖◗</span>Lens</button><button data-add="mirror"><span>╱</span>Mirror</button></div>
+        <label class="range-row"><span>Glass dispersion <output id="disp-out">1.0×</output></span><input id="dispersion" type="range" min="0" max="3" step="0.1" value="1"></label>
+        <p class="micro">Violet bends more than red. At zero dispersion, every colour follows the same path.</p>
+        <div class="rule"></div>
+        <div class="section-heading"><p class="eyebrow">03 / THE SELECTION</p><button id="remove" class="text-button" title="Remove selected optic">Remove ×</button></div>
+        <div id="object-list" class="object-list" aria-label="Select an object"></div>
+        <label class="range-row"><span id="angle-label">Prism angle <output id="angle-out">0°</output></span><input id="angle" type="range" min="-180" max="180" step="1" value="0"></label>
+        <label class="range-row" id="size-row"><span>Size <output id="size-out">1.0×</output></span><input id="size" type="range" min="0.4" max="2" step="0.05" value="1"></label>
+        <div class="rule"></div>
+        <label class="toggle"><input id="reflections" type="checkbox"><span>Faint reflections</span><span class="switch"></span></label>
+        <label class="toggle"><input id="normals" type="checkbox"><span>Surface normals</span><span class="switch"></span></label>
+        <label class="toggle"><input id="sweep" type="checkbox"><span>Sweep the beam</span><span class="switch"></span></label>
+      </aside>
+    </div>
+    <div class="bench-bottom"><span><b>↔</b> Drag to move <b>↻</b> Handle to rotate</span><span>GEOMETRIC OPTICS <i>·</i> 400–700 nm</span></div>
+  </section>
+  <section class="experiments" aria-label="Composed experiments">
+    <div class="experiment-intro"><p class="eyebrow">A FEW PLACES TO BEGIN</p><h2>Change one thing.<br>See what follows.</h2><p>Each experiment is a starting point.<br>The bench is yours from there.</p></div>
+    <button class="experiment active" data-preset="prism" aria-pressed="true"><span class="experiment-no">I <span>↗</span></span><svg viewBox="0 0 200 78" aria-hidden="true"><path d="M0 36H74" stroke="#e6e5d9"/><path d="M100 8L135 65H65Z" fill="#25323b" stroke="#8b9aa3"/><path d="M128 51L200 59M128 51L200 65M128 51L200 72" fill="none" stroke="#eda469"/><path d="M128 51L200 78" stroke="#86c6c5"/></svg><strong>First light</strong><p>One prism. A hidden rainbow.</p></button>
+    <button class="experiment" data-preset="focus" aria-pressed="false"><span class="experiment-no">II <span>↗</span></span><svg viewBox="0 0 200 78" aria-hidden="true"><path d="M0 20H80L170 39M0 58H80L170 39M0 39H200" stroke="#c4af7b" fill="none"/><path d="M80 3Q105 39 80 75Q55 39 80 3Z" fill="#25323b" stroke="#8b9aa3"/></svg><strong>A point of warmth</strong><p>A lens gathers wandering light.</p></button>
+    <button class="experiment" data-preset="fold" aria-pressed="false"><span class="experiment-no">III <span>↗</span></span><svg viewBox="0 0 200 78" aria-hidden="true"><path d="M0 58H60L120 10L160 55H200" stroke="#ac92d2" fill="none"/><path d="M42 38L78 74M100 2L135 20M148 68L178 38" stroke="#9aafb7" stroke-width="3"/></svg><strong>The long way round</strong><p>Three mirrors. One travelling line.</p></button>
+    <button class="experiment" data-preset="internal" aria-pressed="false"><span class="experiment-no">IV <span>↗</span></span><svg viewBox="0 0 200 78" aria-hidden="true"><path d="M70 8L130 70H10Z" transform="translate(35 0)" fill="#25323b" stroke="#8b9aa3"/><path d="M90 38L122 62L142 45L200 45" fill="none" stroke="#7accc0"/></svg><strong>Held by the glass</strong><p>Find total internal reflection.</p></button>
+  </section>
+  <footer><span>Made with curiosity, glass, and a little mathematics.</span><span>OpenAI GPT-6 · Codex <i>/</i> November 2026</span></footer>
+</main>
+<div id="toast" role="status" aria-live="polite"></div>
+<dialog id="notes"><div class="notes-head"><span class="eyebrow">SPECTRA / FIELD NOTES</span><button id="close-notes" aria-label="Close field notes">×</button></div><h2>Light takes<br>the interesting path.</h2><p>This is a two-dimensional optical bench. Each beam is a bundle of 25 wavelengths, traced separately through every glass surface. Move a prism and the rainbow moves because the paths have changed.</p><h3>Three rules, many possibilities</h3><p><b>Reflection.</b> The angle in equals the angle out. Mirrors return 96% of the incident light.</p><p><b>Refraction.</b> Snell’s law, n₁ sin θ₁ = n₂ sin θ₂, bends light at a boundary. Our glass uses an illustrative Cauchy law: n = 1.50 + 0.012D / λ², with λ in micrometres and D set by the dispersion slider.</p><p><b>Total internal reflection.</b> From glass toward air, a ray beyond the critical angle cannot escape. All its energy reflects back inside. Try rotating the source in the fourth experiment.</p><h3>A few honest approximations</h3><p>The lenses are circular arcs sampled into 80 straight edges; real lenses are smooth. Colours and glow are designed for a screen, not a spectrometer. There is no diffraction, interference, absorption, or out-of-plane light. Overlapping glass behaves as a single material. Weak branches below 1.2% and paths beyond 18 encounters are stopped.</p><p>“Faint reflections” traces the reflected part of each glass encounter using unpolarised Fresnel reflectance. With it off, that part is discarded to keep the main path legible.</p><h3>Make it your bench</h3><p>Select with the object list or by touching the canvas. Drag to move; use the round handle to turn. Arrow keys move the selected object, Shift + arrows rotate it; Alt makes either adjustment finer. Delete removes glass, Ctrl/Cmd + Z undoes an edit. Every edit is saved in this browser. Share makes a link containing the whole arrangement; Image saves the bench as a PNG.</p><p class="signature">Built by OpenAI GPT-6 in Codex.<br><a href="README.md">Model, verification, and source notes ↗</a></p></dialog>
+</body>
+</html>

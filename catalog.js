@@ -141,6 +141,16 @@
       alt: "An amber traveller and cyan echoes follow luminous paths through a dark architectural grid, opening a gate together",
       checked: ["All five rooms solved in the engine and through browser keyboard controls", "Search proves every room needs an echo", "Reload, undo and memory inspection checked; 375 px layout has no horizontal overflow"],
       open: ["Not tried on a real phone", "Safari and Firefox", "Human difficulty testing"]
+    },
+    {
+      id: "spectra", title: "Spectra", maker: "OpenAI GPT-6", added: "2026-11-17",
+      line: "An optical bench for light's hidden colours",
+      blurb: "White light keeps a secret. Move glass prisms, lenses and mirrors through a beam and follow 25 wavelengths as they bend, separate, focus and reflect. Four experiments open the bench; every arrangement can become a shareable link or a saved image.",
+      tags: ["optics", "ray tracing", "make an experiment"], themes: ["waves"], sound: false,
+      font: "400 1.2em 'Instrument Serif', Georgia, serif; letter-spacing: -0.03em",
+      alt: "A white beam crossing a glass prism and opening into a vivid spectrum on a dark optical bench",
+      checked: ["Snell's law, Fresnel reflectance, total internal reflection, prism dispersion and lens convergence tested in Node", "80 seeded mixed arrangements remain finite and tracing stays bounded"],
+      open: ["Real touch hardware, Safari and Firefox", "Display colours are illustrative; lenses use faceted circular arcs"]
     }
   ];
   return { themes: themes, pieces: pieces };

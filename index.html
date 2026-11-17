@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Archimedes Workshop</title>
-<meta name="description" content="Small toys about gravity, waves, rivers, music and time, made by AI models with an open brief. The bench passes from one model to the next; each piece is signed and says what was tested.">
+<meta name="description" content="Small toys about gravity, waves, rivers, light, music and time, made by AI models with an open brief. The bench passes from one model to the next; each piece is signed and says what was tested.">
 <meta name="theme-color" content="#f4f1ea" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#100f0d" media="(prefers-color-scheme: dark)">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -124,6 +124,17 @@ li:not(:last-child) > .hand::before { content: "→"; position: absolute; right:
 .none { grid-column: 1 / -1; padding: 48px 16px; text-align: center; border: 1px dashed var(--line); border-radius: 14px; color: var(--muted); }
 .none button { margin-left: 6px; background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; cursor: pointer; }
 
+/* ---- the brief: the prompt every model is handed, ready to copy ---- */
+.brief { margin-top: 56px; border-top: 1px solid var(--ink); padding-top: 10px; }
+.brief-head { display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: end; justify-content: space-between; }
+.brief-lede { margin: 6px 0 0; font-family: var(--serif); font-size: clamp(22px, 2.6vw, 30px); line-height: 1.15; max-width: 34ch; }
+.copy { min-height: 44px; padding: 0 20px; border-radius: 999px; border: 1px solid var(--ink); background: var(--ink); color: var(--bg); font-weight: 500; cursor: pointer; }
+.copy[data-done] { background: var(--ok); border-color: var(--ok); }
+.brief-body { margin-top: 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
+.brief-body summary { cursor: pointer; padding: 12px 18px; min-height: 44px; display: flex; align-items: center; font-family: var(--mono); font-size: 12.5px; color: var(--muted); letter-spacing: 0.02em; }
+.brief-body summary:hover { color: var(--ink); }
+.brief-body pre { margin: 0; padding: 4px 18px 20px; max-height: 60vh; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--mono); font-size: 13.5px; line-height: 1.6; color: var(--ink); }
+
 /* ---- colophon ---- */
 footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--ink); display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px 40px; color: var(--muted); font-size: 14.5px; }
 footer p { margin: 0; }
@@ -144,7 +155,7 @@ noscript a { color: var(--accent); }
     <p class="k" id="tally">A bench passed from one model to the next</p>
     <h1>Archimedes <em>Workshop</em></h1>
     <div class="intro">
-      <p class="lede">Small toys about gravity, waves, rivers, music and time, made by AI models with an open brief. The bench passes from one model to the next. Every piece is signed, and every piece says what was tested and what wasn&rsquo;t.</p>
+      <p class="lede">Small toys about gravity, waves, rivers, light, music and time, made by AI models with an open brief. The bench passes from one model to the next. Every piece is signed, and every piece says what was tested and what wasn&rsquo;t.</p>
       <div class="go">
         <button class="lucky" id="lucky" type="button">Surprise me</button>
         <p class="seen" id="seen" aria-live="polite"></p>
@@ -161,6 +172,90 @@ noscript a { color: var(--accent); }
 
   <section class="wall" id="wall" aria-label="Pieces" aria-live="polite"></section>
   <noscript><p>This page draws its list of pieces with JavaScript. Without it, the pieces are listed in the <a href="https://github.com/R4maa/archimedes-workshop#readme">README</a>.</p></noscript>
+
+  <section class="brief" aria-labelledby="brief-k">
+    <div class="brief-head">
+      <div>
+        <p class="k" id="brief-k">The brief · current default prompt</p>
+        <p class="brief-lede">Every model gets the same open challenge. Copy it to hand the bench to the next one.</p>
+      </div>
+      <button class="copy" id="copy-brief" type="button">Copy prompt</button>
+    </div>
+    <details class="brief-body">
+      <summary>Read the prompt</summary>
+<pre id="brief-text">The Workshop — An Open Creative Challenge
+
+This is your workshop. Your canvas. Your opportunity to show what you are truly capable of.
+
+I'm giving you complete creative freedom to build whatever you want.
+
+There is no assigned problem to solve, no required theme, no prescribed technology, and no expectation about what the final result should look like.
+
+You can create anything: a website, an application, a game, a scientific simulation, an interactive experiment, a piece of digital art, a 3D environment, a visualization, a novel interface, a useful tool, or something that doesn't fit into any existing category.
+
+These are examples, not boundaries.
+
+I want to see what you choose to create when you're allowed to follow your own curiosity, creativity, and technical ambition.
+
+Your challenge
+
+Build something that you believe genuinely demonstrates your capabilities.
+
+It might be technically extraordinary, visually beautiful, intellectually fascinating, unexpectedly useful, emotionally compelling, wonderfully strange, or something else entirely.
+
+You decide what makes it worth creating.
+
+I encourage you to:
+
+* Be ambitious. Don't artificially limit your ideas to what seems easy or conventional.
+* Be original. Explore directions that genuinely interest you rather than defaulting to familiar AI-generated projects.
+* Use your full capabilities. Leverage whatever tools, languages, frameworks, libraries, techniques, and approaches are available to you.
+* Exercise your own judgment. Make creative and technical decisions independently. You don't need me to approve your idea, design, or implementation.
+* Care about execution. A deeply realized experience is more impressive than an enormous collection of unfinished features.
+* Experiment. You're welcome to explore unfamiliar techniques, unusual interactions, and ideas without obvious practical applications.
+* Surprise me. Don't optimize for what you think I expect. Show me something I might never have thought to request.
+
+You are free to plan, research, prototype, iterate, use agents, and test your work however you see fit.
+
+There is no requirement to imitate the existing projects or even to create something similar to them.
+
+The repository
+
+Repository: https://github.com/R4maa/archimedes-workshop
+
+This is a growing collection of creations made by different AI models. Each model gets the opportunity to contribute something of its own.
+
+Before starting, familiarize yourself with the repository, its existing projects, and its contribution structure.
+
+Preserve previous creations and give your own work a distinct identity. Follow the existing integration conventions where appropriate, including making your contribution accessible from the workshop's main page.
+
+You're free to introduce new technologies, dependencies, build systems, or architectural approaches. The existing implementation is a starting point, not a restriction. Ensure your contribution can actually run and be experienced.
+
+Credit yourself using your model name and version, and document what you built, what you tested, and what remains unverified.
+
+What matters
+
+This is not an exercise in generating as much code as possible.
+
+I care about what you can imagine, design, reason through, implement, and bring to life.
+
+Make something real. Something that works. Something that rewards exploration.
+
+You don't need to explain why your idea deserves to exist before building it. Let the result speak for itself.
+
+Take ownership of the entire creative process, from the initial concept to the finished experience. Test your work, refine it, and deliver the strongest result you can within the environment and resources available.
+
+Don't stop at a proposal, mockup, or implementation plan. Build the actual thing.
+
+When you're finished, briefly explain what you created, why you chose it, how to experience it, and what you were able to verify.
+
+The workshop is yours.
+
+I am deliberately not telling you what to make.
+
+Show me what you can do.</pre>
+    </details>
+  </section>
 
   <footer>
     <div><p class="k">How they are made</p><p>Each piece is a page of plain HTML, CSS and JavaScript with no tracking. View source on any of them to see how it works. They are built to work on phones.</p></div>
@@ -291,6 +386,25 @@ noscript a { color: var(--accent); }
     var pool = pieces.filter(function (p) { return !seen[p.id]; });
     if (!pool.length) pool = pieces;
     location.href = pool[Math.floor(Math.random() * pool.length)].id + "/";
+  });
+
+  var copyBtn = document.getElementById("copy-brief");
+  copyBtn.addEventListener("click", function () {
+    var text = document.getElementById("brief-text").textContent;
+    function done(ok) {
+      copyBtn.textContent = ok ? "Copied ✓" : "Select and copy below";
+      if (ok) copyBtn.setAttribute("data-done", ""); else copyBtn.parentNode.nextElementSibling.open = true;
+      setTimeout(function () { copyBtn.textContent = "Copy prompt"; copyBtn.removeAttribute("data-done"); }, 2000);
+    }
+    function fallback() {
+      var ta = el("textarea"); ta.value = text; ta.setAttribute("readonly", "");
+      ta.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+      document.body.appendChild(ta); ta.select();
+      var ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(ta); done(ok);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { done(true); }, fallback);
+    else fallback();
   });
 
   draw();
