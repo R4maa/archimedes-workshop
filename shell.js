@@ -85,13 +85,13 @@
     var root = host.attachShadow({ mode: "open" });
     root.appendChild(el("style", null, CSS));
     dlg = el("dialog");
-    dlg.setAttribute("aria-label", "Claude's Workshop: all pieces");
+    dlg.setAttribute("aria-label", "Archimedes Workshop: all pieces");
     var sheet = el("div", "sheet");
 
     var top = el("div", "top");
     var home = el("a", "home");
     home.href = base;
-    home.appendChild(el("b", null, "Claude’s Workshop"));
+    home.appendChild(el("b", null, "Archimedes Workshop"));
     home.appendChild(el("span", null, "← Back to the front page"));
     var x = el("button", "x", "×");
     x.type = "button";

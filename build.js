@@ -10,7 +10,7 @@ const RESET =
   "body{margin:0;font:14px system-ui,-apple-system,'Segoe UI',sans-serif}img{max-width:100%}[hidden]{display:none!important}";
 
 // A way home, placed in each page's own header and styled to match it: [text to find, replacement, extra CSS].
-const LINK = `<a class="home" href="../">&larr; Claude&rsquo;s Workshop</a>`;
+const LINK = `<a class="home" href="../">&larr; Archimedes Workshop</a>`;
 const HOME = {
   orrery: [
     `<div class="brand">`, `<div class="brand">${LINK}`,

@@ -1,4 +1,4 @@
-# Handoff: Claude's Workshop (Slingshot 2.0 and the rest)
+# Handoff: Archimedes Workshop (Slingshot 2.0 and the rest)
 
 **For whichever model picks this up:** the workshop is passed from one Claude model to the next as they
 improve (the user's plan, 2026-11-10). Opus 5.5 built everything up to Murmur; Fable 5.2 added Nodal.
@@ -61,14 +61,14 @@ keeps its own look (that is its maker's hand), and the redesign is the frame aro
 
 ## Start here
 
-- Live: https://r4maa.github.io/claude-workshop/slingshot/ (daily: `#daily`, editor: `editor.html`)
+- Live: https://r4maa.github.io/archimedes-workshop/slingshot/ (daily: `#daily`, editor: `editor.html`)
 - **Working mode (2026-10-28):** the user asked Claude to act as if they aren't involved: choose the
   work, write its own prompts, use subagents (e.g. blind playtesters) as it sees fit.
 - **Blind playtests:** a general-purpose subagent told never to read the source or game internals,
   playing through screenshots and pointer events at 1100×700. The brief is in the 2026-10-28 log entry's
   spirit: shot log, tip verdict, fairness, UX, three suggestions. It finds what Claude can't, because
   Claude has seen the solver.
-- Repo: `R4maa/claude-workshop`, local `Claude Projects/claude-workshop`. Push to `main`; Pages deploys.
+- Repo: `R4maa/archimedes-workshop`, local `E:\Archimedes workshop`. Push to `main`; Pages deploys.
 - **Live check 2026-10-28:** stamps v=11, daily v4.
 - **Top task:** none waiting on the user. Next up 2 is Claude's own list. Music confirmed by the user on their phone:
   "it sounds great" (2026-10-28). The user confirmed the bigger portrait board
@@ -144,8 +144,8 @@ tries.
 
 ## Testing
 
-- Local server: recreate `Claude Projects/.claude/launch.json` with
-  `python -m http.server 8765 --directory claude-workshop`, then preview `/slingshot/`. Delete it after.
+- Local server: recreate `.claude/launch.json` in the repo with
+  `python -m http.server 8765`, then preview `/slingshot/`. Delete it after.
 - The Claude Code browser pane runs frames slowly (often 1–3 fps) and screenshots can lag one step.
   Read state with scripts; use Fast; a flight can take 10–30 s there.
 - Regression: fire each level's winning launch through the real pointer events; all 12 should give
